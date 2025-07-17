@@ -46,4 +46,18 @@ public class IngredientService {
         Ingredient saved = ingredientRepository.save(ingredient);
         return new IngredientResponseDto(saved.getId(), saved.getName());
     }
+
+    public IngredientResponseDto update(Long id, IngredientDto dto) {
+        Ingredient ingredient = ingredientRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("재료가 존재하지 않습니다."));
+
+        ingredient.setName(dto.getName());
+        Ingredient saved = ingredientRepository.save(ingredient);
+
+        return new IngredientResponseDto(saved.getId(), saved.getName());
+    }
+
+    public void delete(Long id) {
+        ingredientRepository.deleteById(id);
+    }
 }

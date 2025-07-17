@@ -40,6 +40,18 @@ public class RecipeController {
         return recipeService.create(dto);
     }
 
+    @PutMapping("/{id}")
+    public RecipeResponseDto update(@PathVariable Long id, @Validated @RequestBody RecipeDto dto) {
+        return recipeService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        recipeService.delete(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{id}/ingredients/add")
     public ResponseEntity<Void> addIngredient(
             @PathVariable Long id,
@@ -51,7 +63,7 @@ public class RecipeController {
                 .build();
     }
 
-    @PostMapping("/{id}/ingredients/{ingredientId}/remove")
+    @DeleteMapping("/{id}/ingredients/{ingredientId}/remove")
     public ResponseEntity<Void> removeIngredient(
             @PathVariable Long id,
             @PathVariable Long ingredientId

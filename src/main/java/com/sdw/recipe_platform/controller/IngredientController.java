@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,5 +37,17 @@ public class IngredientController {
     @PostMapping
     public IngredientResponseDto create(@Validated @RequestBody IngredientDto dto) {
         return ingredientService.create(dto);
+    }
+
+    @PutMapping("/{id}")
+    public IngredientResponseDto update(@PathVariable Long id, @Validated @RequestBody IngredientDto dto) {
+        return ingredientService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        ingredientService.delete(id);
+
+        return ResponseEntity.noContent().build();
     }
 }
