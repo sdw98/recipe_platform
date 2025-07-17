@@ -6,13 +6,36 @@ import com.sdw.recipe_platform.model.Ingredient;
 import com.sdw.recipe_platform.repository.IngredientRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class IngredientService {
     private final IngredientRepository ingredientRepository;
+
+    public Page<IngredientResponseDto> list(Pageable pageable) {
+
+        return ingredientRepository.findAll(pageable)
+                .map(ingredient -> new IngredientResponseDto(
+                        ingredient.getId(),
+                        ingredient.getName()
+                ));
+    }
+
+    public IngredientResponseDto get(Long id) {
+        Ingredient ingredient = ingredientRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("재료를 찾을 수 없습니다."));
+
+        return new IngredientResponseDto(
+                ingredient.getId(),
+                ingredient.getName()
+        );
+    }
 
     public IngredientResponseDto create(IngredientDto dto) {
         if (ingredientRepository.findByName(dto.getName()).isPresent()) {

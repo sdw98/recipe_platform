@@ -1,8 +1,6 @@
 package com.sdw.recipe_platform.service;
 
-import com.sdw.recipe_platform.dto.AddIngredientDto;
-import com.sdw.recipe_platform.dto.RecipeDto;
-import com.sdw.recipe_platform.dto.RecipeResponseDto;
+import com.sdw.recipe_platform.dto.*;
 import com.sdw.recipe_platform.model.Ingredient;
 import com.sdw.recipe_platform.model.Recipe;
 import com.sdw.recipe_platform.model.RecipeIngredient;
@@ -12,8 +10,11 @@ import com.sdw.recipe_platform.repository.RecipeIngredientRepository;
 import com.sdw.recipe_platform.repository.RecipeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -23,6 +24,27 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final IngredientRepository ingredientRepository;
     private final RecipeIngredientRepository recipeIngredientRepository;
+
+    public Page<RecipeResponseDto> list(Pageable pageable) {
+        return recipeRepository.findAll(pageable)
+                .map(recipe -> new RecipeResponseDto(recipe.getId(), recipe.getTitle(), recipe.getDescription()));
+
+    }
+
+    public RecipeDetailDto get(Long id) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("레시피를 찾을 수 없습니다."));
+        List<RecipeIngredientDto> ingredientDtos = recipe.getRecipeIngredients().stream()
+                .map(
+                        recipeIngredient -> new RecipeIngredientDto(
+                                recipeIngredient.getIngredient().getId(),
+                                recipeIngredient.getIngredient().getName(),
+                                recipeIngredient.getQuantity()
+                        )
+                ).toList();
+
+        return new RecipeDetailDto(recipe.getId(), recipe.getTitle(), recipe.getDescription(), ingredientDtos);
+    }
 
     public RecipeResponseDto create(RecipeDto dto) {
         Recipe recipe = new Recipe();
@@ -52,6 +74,10 @@ public class RecipeService {
         recipe.getRecipeIngredients().add(recipeIngredient);
 
         recipeRepository.save(recipe);
+    }
 
+    public void removeIngredient(Long recipeId, Long ingredientId) {
+        RecipeIngredientId id = new RecipeIngredientId(recipeId, ingredientId);
+        recipeIngredientRepository.deleteById(id);
     }
 }
